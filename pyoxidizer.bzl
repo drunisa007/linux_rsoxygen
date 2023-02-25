@@ -1,38 +1,26 @@
+# This file defines how PyOxidizer application building and packaging is
+# performed. See PyOxidizer's documentation at
+# https://gregoryszorc.com/docs/pyoxidizer/stable/pyoxidizer.html for details
+# of this configuration file format.
 
+# Configuration files consist of functions which define build "targets."
+# This function creates a Python executable and installs it in a destination
+# directory.
 def make_exe():
+    # Obtain the default PythonDistribution for our build target. We link
+    # this distribution into our produced executable and extract the Python
+    # standard library from it.
     dist = default_python_distribution()
+
+    # This function creates a `PythonPackagingPolicy` instance, which
+    # influences how executables are built and how resources are added to
+    # the executable. You can customize the default behavior by assigning
+    # to attributes and calling functions.
     policy = dist.make_python_packaging_policy()
-    # The configuration of the embedded Python interpreter can be modified
-    # by setting attributes on the instance. Some of these are
-    # documented below.
-    python_config = dist.make_python_interpreter_config()
 
-    # Produce a PythonExecutable from a Python distribution, embedded
-    # resources, and other options. The returned object represents the
-    # standalone executable that will be built.
-    exe = dist.to_python_executable(
-        name="linux_rsoxygen",
-
-        # If no argument passed, the default `PythonPackagingPolicy` for the
-        # distribution is used.
-        packaging_policy=policy,
-
-        # If no argument passed, the default `PythonInterpreterConfig` is used.
-        config=python_config,
-    )
-    return exe
-
-    def make_embedded_resources(exe):
-    return exe.to_embedded_resources()
-
-    def make_install(exe):
-    # Create an object that represents our installed application file layout.
-    files = FileManifest()
-
-    # Add the generated executable to our install layout in the root directory.
-    files.add_python_resource(".", exe)
-
-    return files
+    # Enable support for non-classified "file" resources to be added to
+    # resource collections.
+    # policy.allow_files = True
 
     # Control support for loading Python extensions and other shared libraries
     # from memory. This is only supported on Windows and is ignored on other
@@ -128,7 +116,10 @@ def make_exe():
     # using settings that are appropriate for an "isolated" run-time
     # environment.
     #
-
+    # The configuration of the embedded Python interpreter can be modified
+    # by setting attributes on the instance. Some of these are
+    # documented below.
+    python_config = dist.make_python_interpreter_config()
 
     # Make the embedded interpreter behave like a `python` process.
     # python_config.config_profile = "python"
@@ -207,7 +198,19 @@ def make_exe():
     # Run a Python file when the interpreter starts.
     # python_config.run_filename = "/path/to/file"
 
+    # Produce a PythonExecutable from a Python distribution, embedded
+    # resources, and other options. The returned object represents the
+    # standalone executable that will be built.
+    exe = dist.to_python_executable(
+        name="linux_rsoxygen",
 
+        # If no argument passed, the default `PythonPackagingPolicy` for the
+        # distribution is used.
+        packaging_policy=policy,
+
+        # If no argument passed, the default `PythonInterpreterConfig` is used.
+        config=python_config,
+    )
 
     # Install tcl/tk support files to a specified directory so the `tkinter` Python
     # module works.
@@ -252,10 +255,14 @@ def make_exe():
     # Read Python files from a local directory and add them to our embedded
     # context, taking just the resources belonging to the `foo` and `bar`
     # Python packages.
-    #exe.add_python_resources(exe.read_package_root(
-    #    path="/src/mypackage",
-    #    packages=["foo", "bar"],
-    #))
+    # exe.add_python_resources(exe.read_package_root(
+    #    path="./hello",
+    #    packages=["hello"],
+    # ))
+    exe.add_python_resources(exe.read_package_root(                                                                      
+    path="/home/aung/linux_rsoxygen/hello",                                                                              
+    packages=["main"]
+    )) 
 
     # Discover Python files from a virtualenv and add them to our embedded
     # context.
@@ -267,6 +274,19 @@ def make_exe():
 
     # Return our `PythonExecutable` instance so it can be built and
     # referenced by other consumers of this target.
+    return exe
+
+def make_embedded_resources(exe):
+    return exe.to_embedded_resources()
+
+def make_install(exe):
+    # Create an object that represents our installed application file layout.
+    files = FileManifest()
+
+    # Add the generated executable to our install layout in the root directory.
+    files.add_python_resource(".", exe)
+
+    return files
 
 def make_msi(exe):
     # See the full docs for more. But this will convert your Python executable
@@ -280,7 +300,7 @@ def make_msi(exe):
         # The version of your application.
         "1.0",
         # The author/manufacturer of your application.
-        "Drunisa"
+        "Alice Jones"
     )
 
 
