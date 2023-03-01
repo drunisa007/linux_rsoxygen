@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 pyembed = "0.24.0"
+pyo3 = "0.17.3"
+
+
